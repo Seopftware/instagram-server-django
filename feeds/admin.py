@@ -3,11 +3,10 @@ from .models import Feed
 
 @admin.register(Feed)
 class FeedAdmin(admin.ModelAdmin):
-        list_display = (
-        "img",
+    list_display = (
         "content",
         "like",
         "owner",
-        "created_at",
-        "updated_at"
+        "created",
+        "updated",
     )

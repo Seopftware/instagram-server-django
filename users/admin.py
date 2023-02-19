@@ -7,8 +7,10 @@ from .models import User
 class CustomUserAdmin(UserAdmin):
     fieldsets = (
         ("Profile Info", {
-                "fields": ("email", "password", "nickname"),
+                "fields": ("email", "password", "nickname", "profileImg", "profileIntroduce", "followerNumber"),
                 "classes": ("wide",),
             },
         ),
     )
+
+    list_display = ("email", "nickname", "followerNumber")

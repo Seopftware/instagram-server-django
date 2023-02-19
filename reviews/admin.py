@@ -7,6 +7,6 @@ class ReviewAdmin(admin.ModelAdmin):
         "content",
         "like",
         "owner",
-        "created_at",
-        "updated_at"
+        "created",
+        "updated",
     )
