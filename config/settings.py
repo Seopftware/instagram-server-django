@@ -12,9 +12,15 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 
+
+import os
+import environ
+env = environ.Env()
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+environ.Env.read_env(os.path.join(BASE_DIR, ".env")) # env 파일 경로
 
 AUTH_USER_MODEL = "users.User"
 
@@ -22,7 +28,9 @@ AUTH_USER_MODEL = "users.User"
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-@c**d##nmbwm2ulx835$wg$zqly78l3i)ursr(&a^gk5s1jhff"
+
+SECRET_KEY = env("SECRET_KEY")
+print(env("SECRET_KEY"))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -128,3 +136,12 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+REST_FRAMEWORK = {
+    # django에서 제공하는 authentication
+    # 헤더에 담겨있는 쿠키랑 세션 값을 비교해서 user값을 내려줌.
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "config.authentication.JWTAuthentication"
+    ]
+}

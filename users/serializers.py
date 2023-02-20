@@ -8,7 +8,7 @@ class UserSerializer(ModelSerializer):
         fields = (
             "id",
             "email",
-            "nickname",
+            "username",
             "profileImg",
             "profileIntroduce"
         )
