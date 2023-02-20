@@ -10,8 +10,14 @@ class Feed(CommonModel):
     # 게시글의 소유자는 딱 1명만 가능
     owner = models.ForeignKey(
         "users.User",
-        on_delete=models.CASCADE # 유저를 삭제하면 게시글도 지워짐
+        on_delete=models.CASCADE, # 유저를 삭제하면 게시글도 지워짐
+        related_name="feeds"
     )
 
-def __str__(self) -> str:
-    return self.content
+    # reviews = models.ManyToManyField(
+    #     "reviews.Review",
+    #     on_delete=models.CASCADE, # 유저를 삭제하면 게시글도 지워짐
+    # )
+
+    def __str__(self) -> str:
+        return self.content
