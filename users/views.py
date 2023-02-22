@@ -7,6 +7,14 @@ from .serializers import UserSerializer
 from .models import User
 
 
+class MyInfo(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+        
 class SignUpUsers(APIView):
     def post(self, request): # 회원가입
         # is_valid()에서 password 이외 다른 것들은 모두 validation 해주는 중
@@ -89,15 +97,6 @@ class JWTLogin(APIView):
             return Response({"token":token})
         else:
             return Response({"error":"wrong password"})
-
-class MyInfo(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
-
 
 from django.contrib.auth import logout
 class Logout(APIView):
