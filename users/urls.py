@@ -1,10 +1,11 @@
 from django.urls import path
-from .views import Users, PublucUser, Login, JWTLogin, MyInfo
+from .views import SignUpUsers, PublicUser, Login, JWTLogin, MyInfo, Logout
 
 urlpatterns=[
-    path("", Users.as_view()), # 회원가입
+    path("signup", SignUpUsers.as_view()), # 회원가입
+    # path("<str:username>", PublicUser.as_view()), # 회원조회
     path("login", Login.as_view()), # 로그인
-    path("jwt", JWTLogin.as_view()), # JWT 로그인
-    path("myinfo", MyInfo.as_view()), # JWT 로그인
-    path("<str:username>", PublucUser.as_view()), # 회원조회
+    path("jwtlogin", JWTLogin.as_view()), # JWT 로그인
+    path("myinfo", MyInfo.as_view()), # 내정보 (나만보기)
+    path("logout", Logout.as_view()), # 로그아웃
 ]

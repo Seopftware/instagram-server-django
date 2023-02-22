@@ -7,8 +7,9 @@ from .serializers import UserSerializer
 from .models import User
 
 
-class Users(APIView):
+class SignUpUsers(APIView):
     def post(self, request): # 회원가입
+        # is_valid()에서 password 이외 다른 것들은 모두 validation 해주는 중
         password = request.data.get("password")
 
         if not password:
@@ -18,14 +19,14 @@ class Users(APIView):
 
         if serializer.is_valid():
             user = serializer.save()
-            user.set_password(password)
+            user.set_password(password) # password hash화
             user.save()
             serializer = UserSerializer(user)
             return Response(serializer.data)
         else:
-            return Response(serializer.errors)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-class PublucUser(APIView):
+class PublicUser(APIView):
     def get(self, request, username): # 로그인
         try:
             user = User.objects.get(username=username)
@@ -53,9 +54,11 @@ class Login(APIView):
 
         if user:
             login(request, user)
-            return Response({"ok": "Welcome!"})
+            return Response(status=status.HTTP_200_OK)
+
         else:
-            return Response({"error":"wrong password"})
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 import jwt
 from django.conf import settings
@@ -88,10 +91,19 @@ class JWTLogin(APIView):
             return Response({"error":"wrong password"})
 
 class MyInfo(APIView):
-
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data)
+
+
+from django.contrib.auth import logout
+class Logout(APIView):
+    # 인증된 요청에 한해서 뷰 호출 허용 (로그인이 되어있어야만 접근 허용)
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        logout(request)
+        return Response({"msg":"logout success"})

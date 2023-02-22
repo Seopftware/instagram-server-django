@@ -6,10 +6,8 @@ from .models import Feed
 class FeedSerializer(ModelSerializer):
 
     owner = UserSerializer()
-    reviews = ReviewSerializer(many=True, read_only=True)
+    reviews = ReviewSerializer(many=True, read_only=True) # feed.review_set.all()
 
     class Meta:
         model = Feed
         fields = "__all__"
-
-# feed.review_set.all()

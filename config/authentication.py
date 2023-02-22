@@ -3,7 +3,6 @@ from rest_framework.authentication import BaseAuthentication
 from multiprocessing import AuthenticationError
 from django.conf import settings
 from users.models import User
-
 import jwt
 
 # BaseAuthentication을 상속받아서 나만의 인증 모델 구조를 만들 수 있음.

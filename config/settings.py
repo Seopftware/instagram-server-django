@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "reviews.apps.ReviewsConfig",
     "common.apps.CommonConfig",
     "rest_framework",
+    "corsheaders"
 ]
 
 MIDDLEWARE = [
@@ -62,6 +63,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -142,6 +144,15 @@ REST_FRAMEWORK = {
     # django에서 제공하는 authentication
     # 헤더에 담겨있는 쿠키랑 세션 값을 비교해서 user값을 내려줌.
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
         "config.authentication.JWTAuthentication"
     ]
 }
+
+CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]
+
+# http://127.0.0.1:3000 도메인으로부터 credential 받아도된다.
+CORS_ALLOW_CREDENTIALS = True
+
+# https://velog.io/@shroad1802/CSRF
+CSRF_TRUSTED_ORIGIN = ["http://127.0.0.1:3000"]

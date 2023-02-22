@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .models import Feed
+from users.models import User
 from .serializers import FeedSerializer
 
 class Feeds(APIView):
@@ -24,13 +25,12 @@ class Feeds(APIView):
         else:
             return Response(serializer.errors)
 
-
-
-# class Feeds(APIView):
-#     def get(self, request):
-#         all_feeds = Feed.objects.filter(user__nickname="seopftware")
-#         serializer = FeedSerializer(
-#             all_feeds,
-#             many=True,
-#         )
-#         return Response(serializer.data)
+class UserFeeds(APIView):
+    def get(self, request, username):
+        owner_id = User.objects.get(username=username)
+        all_feeds = Feed.objects.filter(owner_id=owner_id)
+        serializer = FeedSerializer(
+            all_feeds,
+            many=True,
+        )
+        return Response(serializer.data)
