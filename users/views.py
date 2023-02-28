@@ -6,7 +6,7 @@ from rest_framework.exceptions import ParseError, NotFound
 from .serializers import UserSerializer
 from .models import User
 
-
+# 나만 볼 수 있느 내 정보
 class MyInfo(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -14,26 +14,8 @@ class MyInfo(APIView):
         user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data)
-        
-class SignUpUsers(APIView):
-    def post(self, request): # 회원가입
-        # is_valid()에서 password 이외 다른 것들은 모두 validation 해주는 중
-        password = request.data.get("password")
 
-        if not password:
-            raise ParseError
-
-        serializer = UserSerializer(data=request.data)
-
-        if serializer.is_valid():
-            user = serializer.save()
-            user.set_password(password) # password hash화
-            user.save()
-            serializer = UserSerializer(user)
-            return Response(serializer.data)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
+# 특정 유저 데이터 불러오기
 class PublicUser(APIView):
     def get(self, request, username): # 로그인
         try:
@@ -67,6 +49,25 @@ class Login(APIView):
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+# django를 활용한 회원가입        
+class SignUpUsers(APIView):
+    def post(self, request): # 회원가입
+        # is_valid()에서 password 이외 다른 것들은 모두 validation 해주는 중
+        password = request.data.get("password")
+
+        if not password:
+            raise ParseError
+
+        serializer = UserSerializer(data=request.data)
+
+        if serializer.is_valid():
+            user = serializer.save()
+            user.set_password(password) # password hash화
+            user.save()
+            serializer = UserSerializer(user)
+            return Response(serializer.data)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 import jwt
 from django.conf import settings
@@ -100,9 +101,55 @@ class JWTLogin(APIView):
 
 from django.contrib.auth import logout
 class Logout(APIView):
-    # 인증된 요청에 한해서 뷰 호출 허용 (로그인이 되어있어야만 접근 허용)
-    permission_classes = [IsAuthenticated]
-
     def post(self, request):
         logout(request)
-        return Response({"msg":"logout success"})
+        return Response(status=status.HTTP_200_OK)
+
+# poetry add requests
+import requests
+class KakaoLogin(APIView):
+    def post(self, request):
+        code = request.data.get('code')
+        print("code", code)
+        access_token = requests.post(
+            "https://kauth.kakao.com/oauth/token",
+            headers={"Content-Type":"application/x-www-form-urlencoded"},
+            data = {
+                "grant_type": "authorization_code",
+                "client_id" : "ac69abb9d6cab7a865c937ca01c2edb7",
+                "redirect_uri" : "http://127.0.0.1:3000/oauth/kakao",
+                "code" : code
+            }
+        )
+        print(access_token.json())
+
+        access_token = access_token.json().get("access_token")
+
+        data = requests.get("https://kapi.kakao.com/v2/user/me",
+            headers={
+                "Authorization" : f"Bearer {access_token}",
+                "Content-type" : "application/x-www-form-urlencoded;charset=utf-8"
+            }
+        )
+        data = data.json()
+        print("data" , data)
+        kakao_account = data.get("kakao_account")
+        print("kakao_account" , kakao_account)
+        user_email = kakao_account.get("email")
+        user_data = kakao_account.get("profile")
+        
+        try:
+            user = User.objects.get(email=user_email)
+            login(request, user)
+            return Response(status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            user = User.objects.create(
+                email=user_email,
+                username=user_data.get("nickname"),
+                name=user_data.get("nickname"),
+                avatar=user_data.get("profile_image_url"),
+                )
+            user.set_unusable_password()
+            user.save()
+            login(request, user)
+            return Response(status=status.HTTP_201_CREATED)
